@@ -11,4 +11,17 @@
 
 * {
   margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.main_container {
+  height: calc(100vh - 72px);
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
 }

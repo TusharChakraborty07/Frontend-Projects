@@ -1,0 +1,17 @@
+.nav {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav ul {
+  width: 250px;
+  margin: 0;
+  display: flex;
+  justify-content: space-around;
+}
+
+.nav ul li {
+  list-style: none;
+}

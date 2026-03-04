@@ -1,13 +1,17 @@
 import React from "react";
-import "./app.css";
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
+import "./App.css";
+import Navbar from "./components/Navbar/Navbar";
+import ContactHeader from "./components/contactHeader/ContactHeader";
+import ContactForm from "./components/contactForm/ContactForm";
 
 const App = () => {
   return (
-    <div style={{ height: "100vh", width: "100%", overflowY: "hidden" }}>
+    <div>
       <Navbar />
-      <Hero />
+      <div className="main_container">
+        <ContactHeader />
+        <ContactForm />
+      </div>
     </div>
   );
 };
