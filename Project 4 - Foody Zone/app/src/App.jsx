@@ -1,139 +1,207 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import nav_logo from "./assets/Foody Zone.svg";
-import bg from "./assets/bg.svg";
+import SearchResult from "./components/SearchResult";
 
-const BASE_URL = "http://localhost:9000/";
+export const BASE_URL = "http://localhost:9000";
 
 const App = () => {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [selectedButton, setSelectedButton] = useState("all");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [loding, setLoding] = useState(false);
+
+  const filterButtons = [
+    { name: "All", type: "all" },
+    { name: "Breakfast", type: "breakfast" },
+    { name: "Lunch", type: "lunch" },
+    { name: "Dinner", type: "dinner" },
+  ];
 
   useEffect(() => {
     const fetchFoodData = async () => {
-      setLoding(true);
+      setLoading(true);
+
       try {
         const response = await fetch(BASE_URL);
         const json = await response.json();
-        console.log(json);
+
         setData(json);
-        setLoding(false);
-      } catch (error) {
+        setFilteredData(json);
+      } catch (err) {
         setError("Unable To Fetch Data");
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (error) return <div>{error}</div>;
-    if (loding) return <div>Loding....</div>;
-
     fetchFoodData();
   }, []);
+
+  const searchFood = (e) => {
+    const value = e.target.value.toLowerCase();
+
+    if (!value) {
+      setFilteredData(data);
+      return;
+    }
+
+    const filtered = data.filter((food) =>
+      food.name.toLowerCase().includes(value),
+    );
+
+    setFilteredData(filtered);
+  };
+
+  const filteredFood = (type) => {
+    setSelectedButton(type);
+
+    if (type === "all") {
+      setFilteredData(data);
+      return;
+    }
+
+    const filtered = data.filter((food) =>
+      food.type.toLowerCase().includes(type),
+    );
+
+    setFilteredData(filtered);
+  };
+
+  if (loading) return <Message>Loading...</Message>;
+  if (error) return <Message>{error}</Message>;
+
   return (
-    <>
-      <Container>
-        <TopContainer>
-          <div className="logo">
-            <img src={nav_logo} alt="nav_logo" />
-          </div>
+    <Container>
+      <TopContainer>
+        <Logo>
+          <img src={nav_logo} alt="Foody Zone" />
+        </Logo>
 
-          <div className="search">
-            <input type="text" placeholder="Search Food...." />
-          </div>
-        </TopContainer>
+        <Search>
+          <input
+            type="text"
+            placeholder="Search Food..."
+            onChange={searchFood}
+          />
+        </Search>
+      </TopContainer>
 
-        <FilterContainer>
-          <Button>All</Button>
-          <Button>Breakfast</Button>
-          <Button>Lunch</Button>
-          <Button>Dinner</Button>
-        </FilterContainer>
-      </Container>
+      <FilterContainer>
+        {filterButtons.map((btn) => (
+          <Button
+            key={btn.type}
+            isSelected={selectedButton === btn.type}
+            onClick={() => filteredFood(btn.type)}
+          >
+            {btn.name}
+          </Button>
+        ))}
+      </FilterContainer>
 
-      <FoodCardContainer>
-        <FoodCardsWrapper>
-          <FoodCard />
-          <FoodCard />
-          <FoodCard />
-          <FoodCard />
-        </FoodCardsWrapper>
-      </FoodCardContainer>
-    </>
+      <SearchResult data={filteredData} />
+    </Container>
   );
 };
 
 export default App;
 
-/* Main centered container */
+/* Container */
+
 const Container = styled.div`
   max-width: 1200px;
-  margin: 0 auto;
+  margin: auto;
+  padding: 0 16px;
 `;
 
-/* Navbar section */
+/* Top Section */
+
 const TopContainer = styled.section`
-  min-height: 140px;
-  padding: 16px;
+  min-height: 120px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
 
-  .search {
-    input {
-      background-color: transparent;
-      border: 1px solid red;
-      color: white;
-      border-radius: 5px;
-      height: 40px;
-      font-size: 16px;
-      padding: 0 10px;
-      outline: none;
-    }
-  }
-`;
-
-/* Filter buttons */
-const FilterContainer = styled.section`
-  padding-bottom: 40px;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-`;
-
-const Button = styled.button`
-  padding: 6px 12px;
-  color: white;
-  background-color: #ff4343;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #ff1f1f;
-  }
-`;
-
-/* Full width background section */
-const FoodCardContainer = styled.section`
-  min-height: calc(100vh - 210px);
-  background-image: url(${bg});
-  background-size: cover;
-  background-position: center;
-  padding: 40px 0;
-`;
-
-/* Cards wrapper (centered again) */
-const FoodCardsWrapper = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
 `;
 
-/* Individual food card */
-const FoodCard = styled.div`
-  height: 160px;
-  background: white;
-  border-radius: 10px;
+/* Logo */
+
+const Logo = styled.div`
+  img {
+    width: 150px;
+  }
+`;
+
+/* Search */
+
+const Search = styled.div`
+  input {
+    background: transparent;
+    border: 1px solid #ff4343;
+    color: white;
+
+    border-radius: 6px;
+    height: 40px;
+    width: 220px;
+
+    padding: 0 10px;
+    outline: none;
+
+    transition: 0.2s;
+  }
+
+  input:focus {
+    border-color: #ff1f1f;
+  }
+`;
+
+/* Filter Buttons */
+
+const FilterContainer = styled.section`
+  margin-top: 20px;
+  margin-bottom: 40px;
+
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+`;
+
+/* Button */
+
+const Button = styled.button`
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+
+  color: white;
+
+  background-color: ${(props) => (props.isSelected ? "#ff1f1f" : "#432626")};
+
+  transition: 0.25s;
+
+  &:hover {
+    background-color: #7f2525;
+    transform: translateY(-2px);
+  }
+`;
+
+/* Message UI */
+
+const Message = styled.div`
+  height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 22px;
+  color: white;
 `;
