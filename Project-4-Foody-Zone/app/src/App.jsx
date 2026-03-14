@@ -3,7 +3,7 @@ import styled from "styled-components";
 import nav_logo from "./assets/Foody Zone.svg";
 import SearchResult from "./components/SearchResult";
 
-export const BASE_URL = "http://localhost:9000";
+export const BASE_URL = import.meta.env.VITE_APP_BASE_URL;
 
 const App = () => {
   const [data, setData] = useState([]);
